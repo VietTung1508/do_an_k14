@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../model/user.js");
 const Admin = require("../model/admin.js");
-const admin = require("../model/admin.js");
 
 const register = async (req, res, next) => {
   const user = req.body;
@@ -95,4 +94,12 @@ const adminLogin = (req, res, next) => {
   }
 };
 
-module.exports = { login, register, adminLogin };
+const editProfileAdmin = (req, res, next) => {
+  const editedProfile = req.body;
+  const id = req.params;
+  try {
+    Admin.findByIdAndUpdate(id, editedProfile);
+  } catch {}
+};
+
+module.exports = { login, register, adminLogin ,editProfileAdmin};

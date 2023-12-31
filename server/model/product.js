@@ -13,6 +13,8 @@ const productScheme = mongoose.Schema(
       url: { type: String },
       filename: { type: String },
     },
+    size: [{ type: String }],
+    color: [{ type: String }],
     status: { type: Boolean },
   },
   {

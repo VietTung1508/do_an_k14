@@ -3,15 +3,26 @@ const bcrypt = require("bcryptjs");
 const User = require("../model/user.js");
 const Admin = require("../model/admin.js");
 
+const getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (e) {
+    res.status(500).json({ message: e });
+  }
+};
+
 const register = async (req, res, next) => {
   const user = req.body;
   const { password } = req.body;
 
   try {
-    emailExist = await User.findOne({ email: user.email }).select("+password");
+    emailExist = await User.findOne({ email: user.email });
 
     if (emailExist) {
-      return res.status(500).json({ message: "Email is already exists" });
+      return res
+        .status(403)
+        .json({ message: "Email đã tồn tại. Vui lòng sử dụng email khác" });
     }
 
     const salt = bcrypt.genSaltSync(10);
@@ -34,12 +45,12 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const user = User.findOne({ email: email }).select("+password");
+    const user = await User.findOne({ email: email }).select("+password");
 
     if (!user) {
       return res
         .status(401)
-        .json({ message: "Email or Password is not valid" });
+        .json({ message: "Tài Khoản Hoặc Mật Khẩu Không Đúng" });
     }
 
     const isMatch = bcrypt.compareSync(password, user.password);
@@ -47,7 +58,7 @@ const login = async (req, res, next) => {
     if (!isMatch) {
       return res
         .status(401)
-        .json({ message: "Email or Password is not valid" });
+        .json({ message: "Tài Khoản Hoặc Mật Khẩu Không Đúng" });
     }
 
     const accessToken = jwt.sign(
@@ -66,11 +77,11 @@ const login = async (req, res, next) => {
   }
 };
 
-const adminLogin = (req, res, next) => {
+const adminLogin = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const admin = Admin.findOne({ email: email });
+    const admin = await Admin.findOne({ email: email });
 
     const isValid = admin.password === password;
 
@@ -94,12 +105,27 @@ const adminLogin = (req, res, next) => {
   }
 };
 
-const editProfileAdmin = (req, res, next) => {
+const editProfileAdmin = async (req, res, next) => {
   const editedProfile = req.body;
-  const id = req.params;
   try {
-    Admin.findByIdAndUpdate(id, editedProfile);
-  } catch {}
+    const adminUpdated = await Admin.findOneAndUpdate(
+      { email: editedProfile.email },
+      editedProfile,
+      {
+        new: true,
+      }
+    );
+    const accessToken = jwt.sign(
+      { id: adminUpdated.email },
+      process.env.TOKEN_PASSWORD,
+      {
+        expiresIn: "24h",
+      }
+    );
+    res.status(200).json({ admin: adminUpdated, accessToken });
+  } catch (e) {
+    res.status(500).json(e);
+  }
 };
 
-module.exports = { login, register, adminLogin ,editProfileAdmin};
+module.exports = { login, register, adminLogin, editProfileAdmin, getUsers };

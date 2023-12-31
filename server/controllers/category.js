@@ -9,6 +9,18 @@ const getCategories = async (req, res, next) => {
   }
 };
 
+const getDetail = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const categoryDetail = await Category.findById(id);
+
+    res.status(200).json(categoryDetail);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+};
+
 const createCategory = async (req, res, next) => {
   const category = req.body;
   try {
@@ -24,7 +36,7 @@ const editCategory = async (req, res, next) => {
   const { id } = req.params;
   const editedCategory = req.body;
   try {
-    await Category.findByIdAndUpdate(id, editedCategory);
+    await Category.findOneAndUpdate({ _id: id }, editedCategory);
     res.status(200).json({ msg: "Update Successfully" });
   } catch (e) {
     res.status(500).json(e);
@@ -46,4 +58,5 @@ module.exports = {
   createCategory,
   editCategory,
   deleteCategory,
+  getDetail,
 };

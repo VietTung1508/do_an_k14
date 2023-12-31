@@ -8,6 +8,19 @@ const getCoupons = async (req, res, next) => {
     res.status(500).json(e);
   }
 };
+
+const getDetail = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const couponDetail = await Coupon.findById(id);
+
+    res.status(200).json(couponDetail);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+};
+
 const createCoupon = async (req, res, next) => {
   const coupon = req.body;
   try {
@@ -41,4 +54,10 @@ const deleteCoupon = async (req, res, next) => {
   }
 };
 
-module.exports = { getCoupons, createCoupon, editCoupon, deleteCoupon };
+module.exports = {
+  getCoupons,
+  createCoupon,
+  editCoupon,
+  deleteCoupon,
+  getDetail,
+};

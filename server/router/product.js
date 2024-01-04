@@ -6,9 +6,11 @@ const { storage } = require("../cloudinary/index.js");
 const upload = multer({ storage });
 
 route.get("/products", product.getProducts);
+route.get("/products/newest", product.getNewest);
+route.get("/products/:category", product.getProductByCategory);
 route.get("/product/:id", product.detail);
 route.post("/create", upload.single("image"), product.createProduct);
-route.post("/search/:q", product.search);
+route.get("/search/:q", product.search);
 route.put("/:id", product.editProduct);
 route.delete("/:id", product.deleteProduct);
 

@@ -1,4 +1,5 @@
 const Product = require("../model/product");
+const Category = require("../model/category");
 
 const getProducts = async (req, res, next) => {
   const { page = 0 } = req.query;
@@ -6,6 +7,27 @@ const getProducts = async (req, res, next) => {
     const products = await Product.find({})
       .limit(15)
       .skip(15 * page);
+    res.status(200).json(products);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+};
+
+const getNewest = async (req, res) => {
+  try {
+    const products = await Product.find({}).sort({ _id: -1 }).limit(15);
+    res.status(200).json(products);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+};
+
+const getProductByCategory = async (req, res) => {
+  const { category } = req.params;
+  try {
+    const products = await Product.find({
+      category: new RegExp(category, "i"),
+    }).limit(15);
     res.status(200).json(products);
   } catch (e) {
     res.status(500).json(e);
@@ -39,11 +61,11 @@ const search = async (req, res, next) => {
   const { q } = req.params;
 
   try {
-    const products = await Product.find({ title: new RegExp(q, "i") }).limit(
-      10
+    const categories = await Category.find({ title: new RegExp(q, "i") }).limit(
+      5
     );
 
-    res.status(200).json(products);
+    res.status(200).json(categories);
   } catch (e) {
     res.status(500).json(e);
   }
@@ -90,4 +112,6 @@ module.exports = {
   deleteProduct,
   search,
   detail,
+  getNewest,
+  getProductByCategory,
 };
